@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Rent-A-Car</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0e0e0e;--paper:#f7f4ef;--warm:#ede8df;--accent:#bf3a2b;--accent2:#e8693c;
+  --muted:#8c877e;--border:#ddd8cf;--white:#ffffff;
+  --sb:#111;--sb-text:rgba(255,255,255,0.55);--sb-active:rgba(255,255,255,0.08);
+  --font-d:'Syne',sans-serif;--font-b:'DM Sans',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#f0ece4;color:var(--ink);font-family:var(--font-b);display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sb{width:210px;background:var(--sb);min-height:100vh;position:fixed;top:0;left:0;display:flex;flex-direction:column;z-index:50;}
+.sb-logo{padding:1.6rem 1.4rem;border-bottom:1px solid rgba(255,255,255,0.07);}
+.sb-logo a{font-family:var(--font-d);font-weight:800;font-size:1.3rem;color:var(--white);text-decoration:none;letter-spacing:-0.01em;}
+.sb-logo a em{color:var(--accent);font-style:normal;}
+.sb-logo p{font-size:0.62rem;color:rgba(255,255,255,0.25);letter-spacing:0.14em;text-transform:uppercase;margin-top:0.2rem;}
+.sb-group{padding:1rem 0 0;}
+.sb-label{font-family:var(--font-d);font-size:0.58rem;letter-spacing:0.22em;text-transform:uppercase;color:rgba(255,255,255,0.22);padding:0 1.4rem;margin-bottom:0.3rem;}
+.sb-link{display:flex;align-items:center;gap:0.65rem;padding:0.65rem 1.4rem;color:var(--sb-text);font-size:0.82rem;cursor:pointer;transition:all 0.18s;text-decoration:none;border-left:2px solid transparent;}
+.sb-link:hover,.sb-link.on{background:var(--sb-active);color:var(--white);}
+.sb-link.on{border-left-color:var(--accent);}
+.sb-icon{font-size:0.95rem;width:18px;text-align:center;}
+.sb-bottom{margin-top:auto;padding:1.3rem;border-top:1px solid rgba(255,255,255,0.05);}
+.sb-bottom a{display:flex;align-items:center;gap:0.5rem;color:rgba(255,255,255,0.25);font-size:0.78rem;text-decoration:none;transition:color 0.2s;}
+.sb-bottom a:hover{color:var(--white);}
+
+/* ── MAIN ── */
+.main{margin-left:210px;flex:1;display:flex;flex-direction:column;}
+.topbar{background:var(--white);padding:0.9rem 2.2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:40;}
+.page-ttl{font-family:var(--font-d);font-size:1.2rem;font-weight:800;letter-spacing:-0.01em;}
+.tb-right{display:flex;align-items:center;gap:0.8rem;}
+.db-badge{display:flex;align-items:center;gap:0.4rem;font-family:var(--font-d);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.db-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;}
+.db-dot.off{background:#f87171;}
+
+/* ── BUTTONS ── */
+.btn{padding:0.5rem 1.1rem;font-family:var(--font-d);font-size:0.76rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;border:none;cursor:pointer;transition:all 0.2s;}
+.btn-accent{background:var(--accent);color:var(--white);}
+.btn-accent:hover{background:var(--accent2);}
+.btn-dark{background:var(--ink);color:var(--white);}
+.btn-dark:hover{background:#333;}
+.btn-ghost{background:none;color:var(--ink);border:1.5px solid var(--border);}
+.btn-ghost:hover{background:var(--ink);color:var(--white);border-color:var(--ink);}
+.btn-sm{padding:0.32rem 0.75rem;font-size:0.68rem;}
+.btn-red{background:#dc2626;color:#fff;}
+.btn-red:hover{background:#b91c1c;}
+.btn-green{background:#16a34a;color:#fff;}
+.btn-green:hover{background:#15803d;}
+
+/* ── CONTENT ── */
+.content{padding:1.8rem 2.2rem;flex:1;}
+
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.8rem;}
+.scard{background:var(--white);padding:1.4rem;border-bottom:3px solid transparent;border:1px solid var(--border);}
+.scard.c1{border-bottom-color:var(--accent);}
+.scard.c2{border-bottom-color:#4ade80;}
+.scard.c3{border-bottom-color:#60a5fa;}
+.scard.c4{border-bottom-color:#fbbf24;}
+.scard.c5{border-bottom-color:#a78bfa;}
+.scard.c6{border-bottom-color:#34d399;}
+.sc-label{font-family:var(--font-d);font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;}
+.sc-val{font-family:var(--font-d);font-size:2rem;font-weight:800;line-height:1;}
+.sc-sub{font-size:0.72rem;color:var(--muted);margin-top:0.25rem;}
+
+/* ── CARD/TABLE ── */
+.card{background:var(--white);border:1px solid var(--border);margin-bottom:1.5rem;}
+.card-head{padding:1rem 1.4rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.card-ttl{font-family:var(--font-d);font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;}
+.tbl{width:100%;border-collapse:collapse;font-size:0.82rem;}
+.tbl th{font-family:var(--font-d);font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);text-align:left;padding:0.7rem 1rem;background:#faf8f4;border-bottom:1px solid var(--border);}
+.tbl td{padding:0.7rem 1rem;border-bottom:1px solid #ece8e0;vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:#faf8f4;}
+.acts{display:flex;gap:0.35rem;flex-wrap:wrap;}
+.badge{display:inline-block;padding:0.18rem 0.55rem;font-family:var(--font-d);font-size:0.62rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
+.b-avail{background:#dcfce7;color:#166534;}
+.b-rented{background:#fee2e2;color:#991b1b;}
+.b-maint{background:#fef3c7;color:#92400e;}
+.b-conf{background:#dbeafe;color:#1e40af;}
+.b-comp{background:#f0fdf4;color:#166534;}
+.b-canc{background:#fef2f2;color:#991b1b;}
+.b-pend{background:#fefce8;color:#854d0e;}
+
+/* ── TAB BAR ── */
+.tabbar{display:flex;border-bottom:1px solid var(--border);padding:0 1.4rem;background:var(--white);}
+.tabt{padding:0.75rem 1rem;font-family:var(--font-d);font-size:0.74rem;letter-spacing:0.08em;text-transform:uppercase;background:none;border:none;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.2s;}
+.tabt.on{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* ── PAGE ── */
+.pg{display:none;}.pg.on{display:block;}
+
+/* ── MODAL ── */
+.ov{display:none;position:fixed;inset:0;background:rgba(14,14,14,0.65);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.ov.open{display:flex;}
+.modal{background:var(--white);width:560px;max-width:95vw;max-height:92vh;overflow-y:auto;animation:mIn 0.22s ease;}
+@keyframes mIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.mh{background:var(--ink);color:var(--white);padding:1.2rem 1.6rem;display:flex;align-items:center;justify-content:space-between;}
+.mh h3{font-family:var(--font-d);font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+.mx{background:none;border:none;color:rgba(255,255,255,0.4);font-size:1.3rem;cursor:pointer;}
+.mx:hover{color:var(--white);}
+.mb{padding:1.6rem;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:0.9rem;}
+.fg{margin-bottom:0.85rem;}
+.fg label{display:block;font-family:var(--font-d);font-size:0.62rem;letter-spacing:0.17em;text-transform:uppercase;color:var(--muted);margin-bottom:0.32rem;}
+.fg input,.fg select{width:100%;padding:0.62rem 0.85rem;border:1.5px solid var(--border);outline:none;font-family:var(--font-b);font-size:0.86rem;color:var(--ink);background:var(--white);transition:border-color 0.2s;}
+.fg input:focus,.fg select:focus{border-color:var(--accent);}
+.mfoot{padding:0 1.6rem 1.6rem;display:flex;gap:0.6rem;justify-content:flex-end;}
+.sec-div{font-family:var(--font-d);font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin:1rem 0 0.7rem;display:flex;align-items:center;gap:0.6rem;}
+.sec-div::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── TOAST ── */
+.toast{display:none;position:fixed;bottom:1.5rem;right:1.5rem;padding:0.85rem 1.4rem;z-index:300;border-left:3px solid #4ade80;box-shadow:0 8px 30px rgba(14,14,14,0.2);animation:tIn 0.25s ease;font-family:var(--font-d);font-size:0.82rem;background:var(--ink);color:var(--white);max-width:300px;}
+.toast.show{display:block;}
+.toast.err{border-left-color:#f87171;}
+@keyframes tIn{from{transform:translateX(80px);opacity:0}to{transform:none;opacity:1}}
+
+.loading{text-align:center;padding:2.5rem;color:var(--muted);font-size:0.85rem;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo"><a href="/">Rent<em>-A-</em>Car</a><p>Admin Panel</p></div>
+  <div class="sb-group">
+    <div class="sb-label">Overview</div>
+    <a class="sb-link on" onclick="go('dashboard',this)"><span class="sb-icon">📊</span>Dashboard</a>
+  </div>
+  <div class="sb-group">
+    <div class="sb-label">Management</div>
+    <a class="sb-link" onclick="go('employees',this)"><span class="sb-icon">👤</span>Employees</a>
+    <a class="sb-link" onclick="go('vehicles',this)"><span class="sb-icon">🚗</span>Vehicles</a>
+    <a class="sb-link" onclick="go('customers',this)"><span class="sb-icon">🧑‍💼</span>Customers</a>
+    <a class="sb-link" onclick="go('reservations',this)"><span class="sb-icon">📋</span>Reservations</a>
+    <a class="sb-link" onclick="go('rent',this)"><span class="sb-icon">💳</span>Rent Records</a>
+  </div>
+  <div class="sb-group">
+    <div class="sb-label">Tools</div>
+    <a class="sb-link" onclick="go('sql',this)"><span class="sb-icon">🗄️</span>SQL Console</a>
+  </div>
+  <div class="sb-bottom"><a href="/"><span>←</span> Back to Website</a></div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="page-ttl" id="pttl">Dashboard</div>
+    <div class="tb-right">
+      <div class="db-badge"><span class="db-dot" id="dbDot"></span><span id="dbSt">Connecting...</span></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="pg on" id="pg-dashboard">
+      <div class="stats" style="grid-template-columns:repeat(3,1fr)" id="statsGrid">
+        <div class="scard c1"><div class="sc-label">Total Vehicles</div><div class="sc-val" id="s-v">—</div></div>
+        <div class="scard c2"><div class="sc-label">Available</div><div class="sc-val" id="s-a">—</div></div>
+        <div class="scard c3"><div class="sc-label">Customers</div><div class="sc-val" id="s-c">—</div></div>
+        <div class="scard c4"><div class="sc-label">Employees</div><div class="sc-val" id="s-e">—</div></div>
+        <div class="scard c5"><div class="sc-label">Active Reservations</div><div class="sc-val" id="s-r">—</div></div>
+        <div class="scard c6"><div class="sc-label">Total Revenue</div><div class="sc-val" id="s-rv">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-ttl">Recent Reservations</div><button class="btn btn-ghost btn-sm" onclick="go('reservations',document.querySelector('[onclick*=reservations]'))">View All</button></div>
+        <table class="tbl" id="dash-res"><tbody><tr><td colspan="7" class="loading">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- EMPLOYEES -->
+    <div class="pg" id="pg-employees">
+      <div class="card">
+        <div class="card-head"><div class="card-ttl">All Employees</div><button class="btn btn-accent btn-sm" onclick="openEmpModal()">+ Add Employee</button></div>
+        <table class="tbl"><thead><tr><th>ID</th><th>Name</th><th>Role</th><th>Contact</th><th>City</th><th>Salary</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="empTbody"><tr><td colspan="8" class="loading">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- VEHICLES -->
+    <div class="pg" id="pg-vehicles">
+      <div class="tabbar">
+        <button class="tabt on" onclick="loadVeh('',this)">All</button>
+        <button class="tabt" onclick="loadVeh('available',this)">Available</button>
+        <button class="tabt" onclick="loadVeh('rented',this)">Rented</button>
+        <button class="tabt" onclick="loadVeh('maintenance',this)">Maintenance</button>
+      </div>
+      <div class="card" style="border-top:none;margin-top:0;">
+        <div class="card-head"><div class="card-ttl" id="veh-ttl">All Vehicles</div><button class="btn btn-accent btn-sm" onclick="openVehModal()">+ Add Vehicle</button></div>
+        <table class="tbl"><thead><tr><th>ID</th><th>Plate No</th><th>Model</th><th>Category</th><th>Condition</th><th>Mileage</th><th>Rate/Day</th><th>Status</th><th>Manager</th><th>Actions</th></tr></thead><tbody id="vehTbody"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="pg" id="pg-customers">
+      <div class="card">
+        <div class="card-head"><div class="card-ttl">All Customers</div></div>
+        <table class="tbl"><thead><tr><th>ID</th><th>Name</th><th>Contact</th><th>City</th><th>Driving Licence</th><th>Registered</th></tr></thead><tbody id="custTbody"><tr><td colspan="6" class="loading">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- RESERVATIONS -->
+    <div class="pg" id="pg-reservations">
+      <div class="tabbar">
+        <button class="tabt on" onclick="loadRes('',this)">All</button>
+        <button class="tabt" onclick="loadRes('confirmed',this)">Confirmed</button>
+        <button class="tabt" onclick="loadRes('pending',this)">Pending</button>
+        <button class="tabt" onclick="loadRes('completed',this)">Completed</button>
+        <button class="tabt" onclick="loadRes('cancelled',this)">Cancelled</button>
+      </div>
+      <div class="card" style="border-top:none;margin-top:0;">
+        <div class="card-head"><div class="card-ttl" id="res-ttl">All Reservations</div></div>
+        <table class="tbl"><thead><tr><th>#</th><th>Vehicle</th><th>Customer</th><th>Pickup</th><th>Return</th><th>Days</th><th>Location</th><th>Total Pay</th><th>Status</th><th>Actions</th></tr></thead><tbody id="resTbody"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- RENT RECORDS -->
+    <div class="pg" id="pg-rent">
+      <div class="card">
+        <div class="card-head"><div class="card-ttl">Rent Payment Records</div></div>
+        <table class="tbl"><thead><tr><th>Rent ID</th><th>Reserve #</th><th>Customer</th><th>Vehicle</th><th>Pay Method</th><th>Down Pay</th><th>Total Pay</th><th>Refund</th><th>Damage Fee</th><th>Pay Date</th></tr></thead><tbody id="rentTbody"><tr><td colspan="10" class="loading">Loading...</td></tr></tbody></table>
+      </div>
+    </div>
+
+    <!-- SQL CONSOLE -->
+    <div class="pg" id="pg-sql">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-ttl">SQL Console</div>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <select id="sqPreset" onchange="applyPreset()" style="padding:0.38rem 0.75rem;font-family:var(--font-d);font-size:0.72rem;border:1px solid var(--border);">
+              <option value="">— Presets —</option>
+              <option value="p1">All vehicles</option>
+              <option value="p2">All employees</option>
+              <option value="p3">All customers</option>
+              <option value="p4">All reservations (JOIN)</option>
+              <option value="p5">All rent records (JOIN)</option>
+              <option value="p6">Revenue summary</option>
+              <option value="p7">Vehicles per category</option>
+              <option value="p8">Active reservations view</option>
+              <option value="p9">SHOW TABLES</option>
+              <option value="p10">DESCRIBE vehicle</option>
+              <option value="p11">DESCRIBE reservation</option>
+              <option value="p12">DESCRIBE rent</option>
+            </select>
+            <button class="btn btn-accent btn-sm" onclick="runAdminSQL()">▶ Run</button>
+          </div>
+        </div>
+        <div style="padding:1.1rem;border-bottom:1px solid var(--border);">
+          <textarea id="sqEditor" style="width:100%;height:110px;font-family:'JetBrains Mono','Courier New',monospace;font-size:0.83rem;line-height:1.75;border:1.5px solid var(--border);padding:0.75rem;outline:none;resize:vertical;color:#1e40af;background:#f8faff;" spellcheck="false">SELECT * FROM vehicle ORDER BY vehicle_id;</textarea>
+        </div>
+        <div style="padding:1.1rem;">
+          <div style="font-family:var(--font-d);font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:0.7rem;">Results — <span id="sqCount">—</span> rows · <span id="sqTime">—</span></div>
+          <div id="sqOut" style="overflow-x:auto;"><p style="color:var(--muted);font-size:0.82rem;">Press Run.</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div>
+
+<!-- EMPLOYEE MODAL -->
+<div class="ov" id="empMod" onclick="closeOv(event,'empMod')">
+  <div class="modal">
+    <div class="mh"><h3 id="empModTtl">Add Employee</h3><button class="mx" onclick="closeMod('empMod')">✕</button></div>
+    <div class="mb">
+      <input type="hidden" id="eId">
+      <div class="frow"><div class="fg"><label>First Name *</label><input id="eFname" placeholder="Rajesh"></div><div class="fg"><label>Last Name *</label><input id="eLname" placeholder="Kumar"></div></div>
+      <div class="frow"><div class="fg"><label>Responsibility</label><input id="eRole" placeholder="Fleet Manager"></div><div class="fg"><label>Salary (₹)</label><input id="eSal" type="number" placeholder="50000"></div></div>
+      <div class="frow"><div class="fg"><label>Contact *</label><input id="eCon" placeholder="9876543210" type="tel"></div><div class="fg"><label>Joined Date</label><input id="eJoin" type="date"></div></div>
+      <div class="frow"><div class="fg"><label>House No</label><input id="eHno" placeholder="12A"></div><div class="fg"><label>City</label><input id="eCity" placeholder="Chennai"></div></div>
+      <div class="fg"><label>Country</label><input id="eCountry" placeholder="India"></div>
+    </div>
+    <div class="mfoot"><button class="btn btn-ghost" onclick="closeMod('empMod')">Cancel</button><button class="btn btn-accent" onclick="saveEmp()">Save</button></div>
+  </div>
+</div>
+
+<!-- VEHICLE MODAL -->
+<div class="ov" id="vehMod" onclick="closeOv(event,'vehMod')">
+  <div class="modal">
+    <div class="mh"><h3 id="vehModTtl">Add Vehicle</h3><button class="mx" onclick="closeMod('vehMod')">✕</button></div>
+    <div class="mb">
+      <input type="hidden" id="vId">
+      <div class="frow"><div class="fg"><label>Plate Number *</label><input id="vPlate" placeholder="TN01AB1234"></div><div class="fg"><label>Model *</label><input id="vModel" placeholder="BMW 5 Series"></div></div>
+      <div class="frow"><div class="fg"><label>Category</label><select id="vCat"><option>Sedan</option><option>SUV</option><option>Sports</option><option>Luxury</option><option>Hatchback</option></select></div><div class="fg"><label>Condition</label><select id="vCond"><option>Excellent</option><option>Good</option><option>Fair</option><option>Poor</option></select></div></div>
+      <div class="frow"><div class="fg"><label>Mileage (km)</label><input id="vMile" type="number" placeholder="0"></div><div class="fg"><label>Daily Price (₹) *</label><input id="vPrice" type="number" placeholder="5000"></div></div>
+      <div class="frow"><div class="fg"><label>Availability</label><select id="vAvail"><option>available</option><option>rented</option><option>maintenance</option></select></div><div class="fg"><label>Managed By (Emp ID)</label><input id="vMgr" type="number" placeholder="1"></div></div>
+    </div>
+    <div class="mfoot"><button class="btn btn-ghost" onclick="closeMod('vehMod')">Cancel</button><button class="btn btn-accent" onclick="saveVeh()">Save</button></div>
+  </div>
+</div>
+
+<!-- COMPLETE RESERVATION MODAL -->
+<div class="ov" id="compMod" onclick="closeOv(event,'compMod')">
+  <div class="modal" style="max-width:420px;">
+    <div class="mh"><h3>Complete Reservation</h3><button class="mx" onclick="closeMod('compMod')">✕</button></div>
+    <div class="mb">
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1.2rem;">Enter any damage or refund amounts before marking as complete.</p>
+      <input type="hidden" id="compId">
+      <div class="fg"><label>Damage Compensation (₹)</label><input type="number" id="compDmg" placeholder="0" value="0"></div>
+      <div class="fg"><label>Refund Amount (₹)</label><input type="number" id="compRef" placeholder="0" value="0"></div>
+    </div>
+    <div class="mfoot"><button class="btn btn-ghost" onclick="closeMod('compMod')">Cancel</button><button class="btn btn-green" onclick="doComplete()">Mark Complete</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:3001/api';
+let vehFilter='', resFilter='';
+
+// ── NAV ───────────────────────────────────────────────────────
+function go(id, el){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.sb-link').forEach(l=>l.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  if(el) el.classList.add('on');
+  const T={dashboard:'Dashboard',employees:'Employees',vehicles:'Vehicles',customers:'Customers',reservations:'Reservations',rent:'Rent Records',sql:'SQL Console'};
+  document.getElementById('pttl').textContent=T[id]||id;
+  const fns={dashboard:loadDash,employees:loadEmps,vehicles:()=>loadVeh(vehFilter),customers:loadCusts,reservations:()=>loadRes(resFilter),rent:loadRent};
+  if(fns[id]) fns[id]();
+}
+
+// ── HEALTH ────────────────────────────────────────────────────
+async function checkH(){
+  try{const r=await fetch(`${API}/health`);const j=await r.json();
+    document.getElementById('dbDot').className=j.status==='ok'?'db-dot':'db-dot off';
+    document.getElementById('dbSt').textContent=j.status==='ok'?'MySQL Connected':'DB Error';
+  }catch{document.getElementById('dbDot').className='db-dot off';document.getElementById('dbSt').textContent='Server Offline';}
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+async function loadDash(){
+  try{
+    const [sr,rr]=await Promise.all([fetch(`${API}/stats`),fetch(`${API}/reservations?status=confirmed`)]);
+    const s=await sr.json();const rv=await rr.json();
+    if(s.success){const d=s.data;
+      document.getElementById('s-v').textContent=d.vehicles;
+      document.getElementById('s-a').textContent=d.available;
+      document.getElementById('s-c').textContent=d.customers;
+      document.getElementById('s-e').textContent=d.employees;
+      document.getElementById('s-r').textContent=d.active_res;
+      document.getElementById('s-rv').textContent='₹'+Number(d.revenue).toLocaleString();
+    }
+    if(rv.success){
+      const rows=rv.data.slice(0,8);
+      document.getElementById('dash-res').innerHTML=`<thead><tr><th>#</th><th>Vehicle</th><th>Customer</th><th>Pickup</th><th>Return</th><th>Total</th><th>Status</th></tr></thead><tbody>`+
+        rows.map(r=>`<tr><td>#${r.reserve_id}</td><td>${r.model}<div style="font-size:0.7rem;color:var(--muted)">${r.plate_no}</div></td><td>${r.customer_name}<div style="font-size:0.7rem;color:var(--muted)">${r.contact_no}</div></td><td>${fmt(r.pickup_date)}</td><td>${fmt(r.return_date)}</td><td style="color:var(--accent);font-weight:600">₹${Number(r.total_pay||0).toLocaleString()}</td><td><span class="badge b-conf">${r.status}</span></td></tr>`).join('')+'</tbody>';
+    }
+  }catch{document.getElementById('dash-res').innerHTML='<tbody><tr><td colspan="7" style="color:#f87171;text-align:center;padding:2rem">Server offline. Run: node server.js</td></tr></tbody>';}
+}
+
+// ── EMPLOYEES ─────────────────────────────────────────────────
+async function loadEmps(){
+  const tb=document.getElementById('empTbody');
+  tb.innerHTML='<tr><td colspan="8" class="loading">Loading...</td></tr>';
+  try{
+    const r=await fetch(`${API}/employees`);const j=await r.json();
+    if(!j.data.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--muted)">No employees found.</td></tr>';return;}
+    tb.innerHTML=j.data.map(e=>`<tr>
+      <td style="color:var(--muted);font-size:0.76rem">#${e.emp_id}</td>
+      <td><strong>${e.fname} ${e.lname}</strong></td>
+      <td>${e.responsibility}</td>
+      <td>${e.contact_no}</td>
+      <td>${e.city||'—'}</td>
+      <td>₹${Number(e.salary).toLocaleString()}</td>
+      <td style="font-size:0.76rem">${fmt(e.joined_date)}</td>
+      <td><div class="acts"><button class="btn btn-ghost btn-sm" onclick="editEmp(${JSON.stringify(e).replace(/"/g,'&quot;')})">Edit</button><button class="btn btn-red btn-sm" onclick="delEmp(${e.emp_id})">Del</button></div></td>
+    </tr>`).join('');
+  }catch{tb.innerHTML='<tr><td colspan="8" style="color:#f87171;text-align:center;padding:2rem">Server offline.</td></tr>';}
+}
+
+function openEmpModal(){
+  document.getElementById('empModTtl').textContent='Add Employee';
+  document.getElementById('eId').value='';
+  ['eFname','eLname','eRole','eSal','eCon','eHno','eCity'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('eCountry').value='India';
+  document.getElementById('eJoin').value=new Date().toISOString().split('T')[0];
+  openOv('empMod');
+}
+function editEmp(e){
+  if(typeof e==='string')e=JSON.parse(e);
+  document.getElementById('empModTtl').textContent='Edit Employee';
+  document.getElementById('eId').value=e.emp_id;
+  document.getElementById('eFname').value=e.fname;document.getElementById('eLname').value=e.lname;
+  document.getElementById('eRole').value=e.responsibility;document.getElementById('eSal').value=e.salary;
+  document.getElementById('eCon').value=e.contact_no;document.getElementById('eJoin').value=fmt(e.joined_date);
+  document.getElementById('eHno').value=e.house_no;document.getElementById('eCity').value=e.city;
+  document.getElementById('eCountry').value=e.country;
+  openOv('empMod');
+}
+async function saveEmp(){
+  const fn=document.getElementById('eFname').value.trim();const ln=document.getElementById('eLname').value.trim();const cn=document.getElementById('eCon').value.trim();
+  if(!fn||!ln||!cn){toast('First name, last name and contact required.','err');return;}
+  const body={fname:fn,lname:ln,salary:parseFloat(document.getElementById('eSal').value)||0,joined_date:document.getElementById('eJoin').value,responsibility:document.getElementById('eRole').value||'Staff',house_no:document.getElementById('eHno').value,city:document.getElementById('eCity').value,country:document.getElementById('eCountry').value,contact_no:cn};
+  const id=document.getElementById('eId').value;
+  try{const r=await fetch(id?`${API}/employees/${id}`:`${API}/employees`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json();if(!j.success)throw new Error(j.message);
+    toast(id?'Employee updated!':'Employee added!');closeMod('empMod');loadEmps();loadDash();
+  }catch(e){toast('Error: '+e.message,'err');}
+}
+async function delEmp(id){
+  if(!confirm(`Delete employee #${id}?`))return;
+  try{const r=await fetch(`${API}/employees/${id}`,{method:'DELETE'});const j=await r.json();if(!j.success)throw new Error(j.message);toast('Deleted.');loadEmps();}
+  catch(e){toast('Error: '+e.message,'err');}
+}
+
+// ── VEHICLES ──────────────────────────────────────────────────
+async function loadVeh(filter,el){
+  vehFilter=filter||'';
+  if(el){document.querySelectorAll('#pg-vehicles .tabt').forEach(t=>t.classList.remove('on'));el.classList.add('on');}
+  document.getElementById('veh-ttl').textContent=filter?filter.charAt(0).toUpperCase()+filter.slice(1)+' Vehicles':'All Vehicles';
+  const tb=document.getElementById('vehTbody');
+  tb.innerHTML='<tr><td colspan="10" class="loading">Loading...</td></tr>';
+  try{
+    const url=filter?`${API}/vehicles?availability=${filter}`:`${API}/vehicles`;
+    const r=await fetch(url);const j=await r.json();
+    if(!j.data.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:2rem;color:var(--muted)">No vehicles found.</td></tr>';return;}
+    tb.innerHTML=j.data.map(v=>{
+      const bc=v.availability==='available'?'b-avail':v.availability==='maintenance'?'b-maint':'b-rented';
+      return `<tr>
+        <td style="color:var(--muted);font-size:0.76rem">#${v.vehicle_id}</td>
+        <td style="font-family:var(--font-d);font-size:0.78rem;letter-spacing:0.04em">${v.plate_no}</td>
+        <td><strong>${v.model}</strong></td>
+        <td>${v.category}</td>
+        <td><span class="badge ${v.condition_state==='Excellent'?'b-avail':v.condition_state==='Good'?'b-conf':'b-pend'}">${v.condition_state}</span></td>
+        <td>${Number(v.mileage).toLocaleString()} km</td>
+        <td style="color:var(--accent);font-weight:600">₹${Number(v.daily_price).toLocaleString()}</td>
+        <td><span class="badge ${bc}">${v.availability}</span></td>
+        <td style="font-size:0.78rem">${v.manager_name||'—'}</td>
+        <td><div class="acts"><button class="btn btn-ghost btn-sm" onclick="editVeh(${JSON.stringify(v).replace(/"/g,'&quot;')})">Edit</button><button class="btn btn-red btn-sm" onclick="delVeh(${v.vehicle_id})">Del</button></div></td>
+      </tr>`;}).join('');
+  }catch{tb.innerHTML='<tr><td colspan="10" style="color:#f87171;text-align:center;padding:2rem">Server offline.</td></tr>';}
+}
+function openVehModal(){
+  document.getElementById('vehModTtl').textContent='Add Vehicle';
+  document.getElementById('vId').value='';
+  ['vPlate','vModel','vMile','vPrice','vMgr'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('vCat').value='Sedan';document.getElementById('vCond').value='Good';document.getElementById('vAvail').value='available';
+  openOv('vehMod');
+}
+function editVeh(v){
+  if(typeof v==='string')v=JSON.parse(v);
+  document.getElementById('vehModTtl').textContent='Edit Vehicle';
+  document.getElementById('vId').value=v.vehicle_id;
+  document.getElementById('vPlate').value=v.plate_no;document.getElementById('vModel').value=v.model;
+  document.getElementById('vCat').value=v.category;document.getElementById('vCond').value=v.condition_state;
+  document.getElementById('vMile').value=v.mileage;document.getElementById('vPrice').value=v.daily_price;
+  document.getElementById('vAvail').value=v.availability;document.getElementById('vMgr').value=v.managed_by||'';
+  openOv('vehMod');
+}
+async function saveVeh(){
+  const plate=document.getElementById('vPlate').value.trim();const model=document.getElementById('vModel').value.trim();const price=document.getElementById('vPrice').value;
+  if(!plate||!model||!price){toast('Plate, model and price required.','err');return;}
+  const body={plate_no:plate,model,category:document.getElementById('vCat').value,condition_state:document.getElementById('vCond').value,mileage:parseInt(document.getElementById('vMile').value)||0,daily_price:parseFloat(price),availability:document.getElementById('vAvail').value,managed_by:parseInt(document.getElementById('vMgr').value)||null};
+  const id=document.getElementById('vId').value;
+  try{const r=await fetch(id?`${API}/vehicles/${id}`:`${API}/vehicles`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json();if(!j.success)throw new Error(j.message);
+    toast(id?'Vehicle updated!':'Vehicle added!');closeMod('vehMod');loadVeh(vehFilter);loadDash();
+  }catch(e){toast('Error: '+e.message,'err');}
+}
+async function delVeh(id){
+  if(!confirm(`Delete vehicle #${id}?`))return;
+  try{const r=await fetch(`${API}/vehicles/${id}`,{method:'DELETE'});const j=await r.json();if(!j.success)throw new Error(j.message);toast('Deleted.');loadVeh(vehFilter);}
+  catch(e){toast('Error: '+e.message,'err');}
+}
+
+// ── CUSTOMERS ─────────────────────────────────────────────────
+async function loadCusts(){
+  const tb=document.getElementById('custTbody');
+  tb.innerHTML='<tr><td colspan="6" class="loading">Loading...</td></tr>';
+  try{
+    const r=await fetch(`${API}/customers`);const j=await r.json();
+    if(!j.data.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--muted)">No customers yet.</td></tr>';return;}
+    tb.innerHTML=j.data.map(c=>`<tr>
+      <td style="color:var(--muted);font-size:0.76rem">#${c.cust_id}</td>
+      <td><strong>${c.fname} ${c.lname}</strong></td>
+      <td>${c.contact_no}</td>
+      <td>${c.city||'—'}, ${c.country}</td>
+      <td style="font-family:var(--font-d);font-size:0.76rem;letter-spacing:0.04em">${c.driving_licence}</td>
+      <td style="font-size:0.76rem">${fmt(c.created_at)}</td>
+    </tr>`).join('');
+  }catch{tb.innerHTML='<tr><td colspan="6" style="color:#f87171;text-align:center;padding:2rem">Server offline.</td></tr>';}
+}
+
+// ── RESERVATIONS ──────────────────────────────────────────────
+async function loadRes(filter,el){
+  resFilter=filter||'';
+  if(el){document.querySelectorAll('#pg-reservations .tabt').forEach(t=>t.classList.remove('on'));el.classList.add('on');}
+  document.getElementById('res-ttl').textContent=filter?filter.charAt(0).toUpperCase()+filter.slice(1)+' Reservations':'All Reservations';
+  const tb=document.getElementById('resTbody');
+  tb.innerHTML='<tr><td colspan="10" class="loading">Loading...</td></tr>';
+  try{
+    const url=filter?`${API}/reservations?status=${filter}`:`${API}/reservations`;
+    const r=await fetch(url);const j=await r.json();
+    if(!j.data.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:2rem;color:var(--muted)">No reservations found.</td></tr>';return;}
+    tb.innerHTML=j.data.map(r=>{
+      const bc={confirmed:'b-conf',completed:'b-comp',cancelled:'b-canc',pending:'b-pend'}[r.status]||'b-pend';
+      const isActive=r.status==='confirmed'||r.status==='pending';
+      return `<tr>
+        <td style="color:var(--muted);font-size:0.76rem">#${r.reserve_id}</td>
+        <td><strong>${r.model}</strong><div style="font-size:0.7rem;color:var(--muted)">${r.plate_no}</div></td>
+        <td>${r.customer_name}<div style="font-size:0.7rem;color:var(--muted)">${r.contact_no}</div></td>
+        <td style="font-size:0.78rem">${fmt(r.pickup_date)}</td>
+        <td style="font-size:0.78rem">${fmt(r.return_date)}</td>
+        <td>${r.no_of_days}</td>
+        <td style="font-size:0.76rem">📍 ${r.pickup_location}</td>
+        <td style="color:var(--accent);font-weight:600">₹${Number(r.total_pay||0).toLocaleString()}</td>
+        <td><span class="badge ${bc}">${r.status}</span></td>
+        <td><div class="acts">
+          ${isActive?`<button class="btn btn-green btn-sm" onclick="openComp(${r.reserve_id})">Complete</button><button class="btn btn-red btn-sm" onclick="cancelRes(${r.reserve_id})">Cancel</button>`:'—'}
+        </div></td>
+      </tr>`;}).join('');
+  }catch{tb.innerHTML='<tr><td colspan="10" style="color:#f87171;text-align:center;padding:2rem">Server offline.</td></tr>';}
+}
+function openComp(id){document.getElementById('compId').value=id;document.getElementById('compDmg').value=0;document.getElementById('compRef').value=0;openOv('compMod');}
+async function doComplete(){
+  const id=document.getElementById('compId').value;
+  const dmg=parseFloat(document.getElementById('compDmg').value)||0;
+  const ref=parseFloat(document.getElementById('compRef').value)||0;
+  try{const r=await fetch(`${API}/reservations/${id}/complete`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({damage_compensation:dmg,refund:ref})});
+    const j=await r.json();if(!j.success)throw new Error(j.message);
+    toast('Reservation completed.');closeMod('compMod');loadRes(resFilter);loadDash();
+  }catch(e){toast('Error: '+e.message,'err');}
+}
+async function cancelRes(id){
+  if(!confirm(`Cancel reservation #${id}?`))return;
+  try{const r=await fetch(`${API}/reservations/${id}/cancel`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({cancellation_details:'Cancelled by admin'})});
+    const j=await r.json();if(!j.success)throw new Error(j.message);
+    toast('Cancelled.');loadRes(resFilter);loadDash();
+  }catch(e){toast('Error: '+e.message,'err');}
+}
+
+// ── RENT RECORDS ──────────────────────────────────────────────
+async function loadRent(){
+  const tb=document.getElementById('rentTbody');
+  tb.innerHTML='<tr><td colspan="10" class="loading">Loading...</td></tr>';
+  try{
+    const r=await fetch(`${API}/rent`);const j=await r.json();
+    if(!j.data.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:2rem;color:var(--muted)">No records.</td></tr>';return;}
+    tb.innerHTML=j.data.map(r=>`<tr>
+      <td style="color:var(--muted);font-size:0.76rem">#${r.rent_id}</td>
+      <td>#${r.reserve_id}</td>
+      <td>${r.customer_name}</td>
+      <td>${r.model}<div style="font-size:0.7rem;color:var(--muted)">${r.plate_no}</div></td>
+      <td><span class="badge b-conf">${r.pay_method}</span></td>
+      <td>₹${Number(r.down_pay).toLocaleString()}</td>
+      <td style="color:var(--accent);font-weight:600">₹${Number(r.total_pay).toLocaleString()}</td>
+      <td>${Number(r.refund)>0?'₹'+Number(r.refund).toLocaleString():'—'}</td>
+      <td>${Number(r.damage_compensation)>0?'₹'+Number(r.damage_compensation).toLocaleString():'—'}</td>
+      <td style="font-size:0.76rem">${fmt(r.pay_date)}</td>
+    </tr>`).join('');
+  }catch{tb.innerHTML='<tr><td colspan="10" style="color:#f87171;text-align:center;padding:2rem">Server offline.</td></tr>';}
+}
+
+// ── SQL CONSOLE ───────────────────────────────────────────────
+const PRESETS={
+  p1:'SELECT * FROM vehicle ORDER BY vehicle_id;',
+  p2:'SELECT * FROM employee ORDER BY emp_id;',
+  p3:'SELECT * FROM customer ORDER BY cust_id;',
+  p4:`SELECT r.reserve_id, CONCAT(c.fname,' ',c.lname) AS customer,\n       v.model, v.plate_no, r.pickup_date, r.return_date,\n       r.no_of_days, r.pickup_location, r.status,\n       rt.total_pay, rt.pay_method\nFROM reservation r\nJOIN customer c ON r.cust_id=c.cust_id\nJOIN vehicle v ON r.vehicle_id=v.vehicle_id\nLEFT JOIN rent rt ON r.reserve_id=rt.reserve_id\nORDER BY r.reserve_id DESC;`,
+  p5:`SELECT rt.rent_id, rt.reserve_id, CONCAT(c.fname,' ',c.lname) AS customer,\n       v.model, rt.pay_method, rt.down_pay, rt.total_pay,\n       rt.refund, rt.damage_compensation, rt.pay_date\nFROM rent rt\nJOIN reservation r ON rt.reserve_id=r.reserve_id\nJOIN customer c ON r.cust_id=c.cust_id\nJOIN vehicle v ON r.vehicle_id=v.vehicle_id;`,
+  p6:`SELECT COUNT(*) AS total_rents,\n       ROUND(SUM(total_pay),2) AS gross_revenue,\n       ROUND(AVG(total_pay),2) AS avg_value,\n       SUM(refund) AS total_refunds,\n       SUM(damage_compensation) AS damage_fees\nFROM rent;`,
+  p7:'SELECT category, COUNT(*) AS total, SUM(availability="available") AS available FROM vehicle GROUP BY category ORDER BY total DESC;',
+  p8:'SELECT * FROM v_active_reservations;',
+  p9:'SHOW TABLES;',
+  p10:'DESCRIBE vehicle;',
+  p11:'DESCRIBE reservation;',
+  p12:'DESCRIBE rent;'
+};
+function applyPreset(){const v=document.getElementById('sqPreset').value;if(v&&PRESETS[v])document.getElementById('sqEditor').value=PRESETS[v];}
+async function runAdminSQL(){
+  const sql=document.getElementById('sqEditor').value;
+  const t0=performance.now();
+  try{
+    const r=await fetch(`${API}/query`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sql})});
+    const j=await r.json();const ms=(performance.now()-t0).toFixed(1);
+    document.getElementById('sqTime').textContent=ms+'ms';
+    if(!j.success){document.getElementById('sqOut').innerHTML=`<p style="color:#f87171;font-family:monospace;font-size:0.82rem">${j.message}</p>`;document.getElementById('sqCount').textContent='0';return;}
+    document.getElementById('sqCount').textContent=j.count;
+    if(!j.data.length){document.getElementById('sqOut').innerHTML='<p style="color:var(--muted)">No rows.</p>';return;}
+    const cols=Object.keys(j.data[0]);
+    let h=`<table class="tbl" style="font-size:0.8rem"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+    j.data.forEach(row=>{
+      h+='<tr>'+cols.map(c=>{
+        let s='';
+        if(c==='availability')s=row[c]==='available'?'color:#16a34a':row[c]==='maintenance'?'color:#d97706':'color:#dc2626';
+        if(c==='status')s=row[c]==='confirmed'||row[c]==='completed'?'color:#16a34a':row[c]==='cancelled'?'color:#dc2626':'color:#d97706';
+        if(['daily_price','total_pay','gross_revenue','revenue','down_pay','refund','damage_compensation','avg_value','avg_rent_value','damage_fees','total_refunds'].includes(c))s='color:var(--accent);font-weight:600';
+        const v=['daily_price','total_pay','gross_revenue','revenue','down_pay','refund','damage_compensation','avg_value','avg_rent_value','damage_fees','total_refunds','salary'].includes(c)
+          ?'₹'+Number(row[c]||0).toLocaleString():String(row[c]??'');
+        return `<td style="${s}">${v}</td>`;
+      }).join('')+'</tr>';
+    });
+    document.getElementById('sqOut').innerHTML=h+'</tbody></table>';
+  }catch{document.getElementById('sqOut').innerHTML='<p style="color:#f87171">Server offline.</p>';}
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function fmt(d){return d?String(d).split('T')[0]:'—';}
+function openOv(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
+function closeMod(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
+function closeOv(e,id){if(e.target===document.getElementById(id))closeMod(id);}
+function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(type?' '+type:'');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),4000);}
+
+window.addEventListener('DOMContentLoaded',()=>{checkH();loadDash();});
+</script>
+</body>
+</html>
